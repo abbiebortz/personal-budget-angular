@@ -17,7 +17,7 @@ div.menu {
 div.menu ul,
 div.menu ul li {
     margin: 0;
-    padding: 0 ;
+    padding: 0;
     list-style: none;
     display: inline-block;
 }
@@ -32,7 +32,7 @@ div.menu ul li a {
     margin: 0;
 }
 
-div.menu ul li a:hover  {
+div.menu ul li a:hover {
     background-color: white;
     color: #4d5791;
 }
@@ -83,16 +83,12 @@ div.hero h2 {
     text-align: center;
 }
 
-.container div.text-box {
-    display: inline-block;
-    width: 100%;
-    max-width: 340px;
-    text-align: justify;
-    margin: 20px;
+/* A11y Change: Add focus styles for better keyboard navigation */
+div.menu ul li a:focus {
+    outline: 2px solid #4d5791;
 }
 
-@media screen and (min-width: 768px) {
-    .container .div.text-box {
-        margin: 10px;
-    }
+/* A11y Change: Improve focus styles for better visibility */
+.text-box:focus {
+    outline: 2px solid #4d5791;
 }

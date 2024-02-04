@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Personal Budget</title>
-    <link rel="stylesheet" href="/personal-budget/reset.css">
-    <link rel="stylesheet" href="/personal-budget/main.css">
+    <link rel="stylesheet" href="reset.css">
+    <link rel="stylesheet" href="main.css">
     
     <!-- SEO Change: Added meta description for better search engine optimization -->
     <meta name="description" content="Manage your personal budget with this free budgeting app. Stay on track, receive alerts, and achieve financial goals.">
@@ -66,10 +66,11 @@
 
             <!-- A11y Change: Added aria-labelledby to associate headings with their content -->
             <section class="text-box" role="region" aria-labelledby="freeHeading">
-                <h1 id="freeHeading">Free</h1>
-                <p>
-                    This app is free!!! And you are the only one holding your data!
-                </p>
+                <h1 id="freeHeading">Chart</h1>
+                <div>
+                    <canvas id="myChart"></canvas>
+                  </div>
+                  
             </section>
     
         </div>
@@ -81,6 +82,37 @@
             All rights reserved &copy; Fabio Nolasco
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.7/axios.min.js" integrity="sha512-NQfB/bDaB8kaSXF8E77JjhHG5PM6XVRxvHzkZiwl3ddWCEPBa23T76MuWSwAJdMGJnmQqM0VeY9kFszsrBEFrQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var dataSource = {
+            datasets: [{
+                data: [30, 350, 90, 150, 50, 100],
+                backgroundColor: ['red', 'blue', 'green', 'yellow', 'purple', 'orange']
+            }],
+            labels: ['Eating Out', 'Rent', 'Groceries', 'Utilities', 'Transportation', 'Entertainment' ]
+        };
 
+        function createChart() {
+            var ctx = document.getElementById('myChart').getContext('2d');
+            var myPieChart = new Chart(ctx, {
+                type: 'pie',
+                data: dataSource
+            });
+        }
+
+        function getBudget() {
+            axios.get('/budget')
+                .then(function (res) {
+                    console.log(res.data);
+                    for (var i = 0; i < res.data.length; i++) {
+                        dataSource.datasets[0].data[i] = res.data.myBudget[i].budget;
+                        data.labels[i] = res.data[i].title;
+                    }
+                    createChart();
+                });
+        }
+        getBudget();
+    </script>
 </body>
 </html>

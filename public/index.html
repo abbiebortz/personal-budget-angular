@@ -87,12 +87,12 @@
     <script>
         var dataSource = {
             datasets: [{
-                data: [30, 350, 90, 150, 50, 100],
-                backgroundColor: ['red', 'blue', 'green', 'yellow', 'purple', 'orange']
+                data: [],
+                backgroundColor: []
             }],
-            labels: ['Eating Out', 'Rent', 'Groceries', 'Utilities', 'Transportation', 'Entertainment' ]
+            labels: []
         };
-
+    
         function createChart() {
             var ctx = document.getElementById('myChart').getContext('2d');
             var myPieChart = new Chart(ctx, {
@@ -100,19 +100,32 @@
                 data: dataSource
             });
         }
-
+    
         function getBudget() {
             axios.get('/budget')
                 .then(function (res) {
                     console.log(res.data);
-                    for (var i = 0; i < res.data.length; i++) {
-                        dataSource.datasets[0].data[i] = res.data.myBudget[i].budget;
-                        data.labels[i] = res.data[i].title;
+                    for (var i = 0; i < res.data.myBudget.length; i++) {
+                        dataSource.datasets[0].data.push(res.data.myBudget[i].budget);
+                        dataSource.labels.push(res.data.myBudget[i].title);
+                        dataSource.datasets[0].backgroundColor.push(getRandomColor()); // You can replace this with your own color logic
                     }
                     createChart();
                 });
         }
+
+        // made it fun with a random color generator
+        function getRandomColor() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+    
         getBudget();
     </script>
+    
 </body>
 </html>

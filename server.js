@@ -1,38 +1,13 @@
 const express = require('express');
+const fs = require('fs');
 const app = express();
 const port = 3000;
 
 app.use(express.static('public'));
 
-const budget = {
-    myBudget: [
-    { 
-        title: 'Eat out',   
-        budget: 30
-    },          
-    { 
-        title: 'Rent',      
-        budget: 350
-    },          
-    { 
-        title: 'Groceries', 
-        budget: 90
-    },          
-    { 
-        title: 'Utilities', 
-        budget: 150
-    },          
-    { 
-        title: 'Transport', 
-        budget: 50
-    },          
-    { 
-        title: 'Entertainment', 
-        budget: 100
-    }
-    ]
-};
-
+// Read the budget data from the JSON file
+const budgetRawData = fs.readFileSync('new.json');
+const budget = JSON.parse(budgetRawData);
 
 app.get('/hello', (req, res) => {
   res.send('Hello World!');

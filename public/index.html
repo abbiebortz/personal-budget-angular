@@ -71,6 +71,7 @@
                     <canvas id="myChart"></canvas>
                   </div>
                   
+                  <div id="d3Chart"></div>
             </section>
     
         </div>
@@ -84,48 +85,104 @@
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.7/axios.min.js" integrity="sha512-NQfB/bDaB8kaSXF8E77JjhHG5PM6XVRxvHzkZiwl3ddWCEPBa23T76MuWSwAJdMGJnmQqM0VeY9kFszsrBEFrQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        var dataSource = {
-            datasets: [{
-                data: [],
-                backgroundColor: []
-            }],
-            labels: []
-        };
-    
-        function createChart() {
-            var ctx = document.getElementById('myChart').getContext('2d');
-            var myPieChart = new Chart(ctx, {
-                type: 'pie',
-                data: dataSource
-            });
-        }
-    
-        function getBudget() {
-            axios.get('/budget')
-                .then(function (res) {
-                    console.log(res.data);
-                    for (var i = 0; i < res.data.myBudget.length; i++) {
-                        dataSource.datasets[0].data.push(res.data.myBudget[i].budget);
-                        dataSource.labels.push(res.data.myBudget[i].title);
-                        dataSource.datasets[0].backgroundColor.push(getRandomColor()); // You can replace this with your own color logic
-                    }
-                    createChart();
-                });
-        }
+    <script src="https://d3js.org/d3.v5.min.js"></script>
 
-        // made it fun with a random color generator
-        function getRandomColor() {
-            var letters = '0123456789ABCDEF';
-            var color = '#';
-            for (var i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
-    
-        getBudget();
-    </script>
-    
+<script>
+    var dataSource = {
+        datasets: [{
+            data: [],
+            backgroundColor: [
+                'red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'cyan', 'brown'
+            ]
+        }],
+        labels: []
+    };
+
+    function createChart() {
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myPieChart = new Chart(ctx, {
+            type: 'pie',
+            data: dataSource
+        });
+    }
+
+    function getBudget() {
+        axios.get('/budget')
+            .then(function (res) {
+                console.log(res.data);
+                for (var i = 0; i < res.data.myBudget.length; i++) {
+                    dataSource.datasets[0].data.push(res.data.myBudget[i].budget);
+                    dataSource.labels.push(res.data.myBudget[i].title);
+                }
+                createChart();
+            });
+    }
+    getBudget();
+</script>
+
+<script>
+    function createD3Chart(data, colors) {
+        var margin = { top: 20, right: 30, bottom: 30, left: 40 },
+            width = 400 - margin.left - margin.right,
+            height = 300 - margin.top - margin.bottom;
+
+        var x = d3.scaleBand()
+            .range([0, width])
+            .padding(0.1);
+
+        var y = d3.scaleLinear()
+            .range([height, 0]);
+
+        var svg = d3.select("#d3Chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        x.domain(data.map(function (d) { return d.title; }));
+        y.domain([0, d3.max(data, function (d) { return d.budget; })]);
+
+        svg.selectAll(".bar")
+            .data(data)
+            .enter().append("rect")
+            .attr("class", "bar")
+            .attr("x", function (d) { return x(d.title); })
+            .attr("width", x.bandwidth())
+            .attr("y", function (d) { return y(d.budget); })
+            .attr("height", function (d) { return height - y(d.budget); })
+            .attr("fill", function (d, i) { return colors[i]; }); 
+
+        svg.selectAll(".bar-label")
+            .data(data)
+            .enter().append("text")
+            .attr("class", "bar-label")
+            .attr("x", function (d) { return x(d.title) + x.bandwidth() / 2; })
+            .attr("y", function (d) { return y(d.budget) - 5; })
+            .attr("text-anchor", "middle")
+            .text(function (d) { return d.title; });
+    }
+
+    function getChartData() {
+        return axios.get('/budget')
+            .then(function (res) {
+                console.log(res.data);
+                return res.data.myBudget;
+            })
+            .catch(function (error) {
+                console.error('Error loading data:', error);
+            });
+    }
+
+    Promise.all([getChartData(), dataSource.datasets[0].backgroundColor])
+        .then(function (results) {
+            var data = results[0];
+            var colors = results[1];
+
+            createD3Chart(data, colors);
+            createChart(data); 
+        });
+</script>
+
 </body>
 </html>
